@@ -1,91 +1,119 @@
-import React, { useState } from 'react';
-import StatCard from '@/components/dashboard/StatCard';
-import StatusChart from '@/components/dashboard/StatusChart';
-import ProgressBar from '@/components/dashboard/ProgressBar';
-import ApplicationsTable, { Application } from '@/components/applications/ApplicationsTable';
-import UpcomingEvents from '@/components/calendar/UpcomingEvents';
-import { FileUp, Calendar, CheckCircle, Clock } from 'lucide-react';
+import ApplicationsTable, {
+  Application,
+} from "@/components/applications/ApplicationsTable";
+import UpcomingEvents from "@/components/calendar/UpcomingEvents";
+import ProgressBar from "@/components/dashboard/ProgressBar";
+import StatCard from "@/components/dashboard/StatCard";
+import StatusChart from "@/components/dashboard/StatusChart";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Calendar, CheckCircle, Clock, FileUp } from "lucide-react";
+import React, { useState } from "react";
 
 const Dashboard = () => {
   const { toast } = useToast();
-  
+
   // Sample data for the dashboard
   const [applications, setApplications] = useState<Application[]>([
     {
-      id: '1',
-      companyName: 'Google',
-      role: 'Frontend Engineering Intern',
-      status: 'applied',
-      dateApplied: '2025-04-15',
-      nextStep: 'Phone Screen'
+      id: "1",
+      companyName: "Google",
+      role: "Frontend Engineering Intern",
+      status: "applied",
+      dateApplied: "2025-04-15",
+      nextStep: "Phone Screen",
     },
     {
-      id: '2',
-      companyName: 'Microsoft',
-      role: 'Software Engineering Intern',
-      status: 'interviewing',
-      dateApplied: '2025-04-10',
-      nextStep: 'Technical Interview'
+      id: "2",
+      companyName: "Microsoft",
+      role: "Software Engineering Intern",
+      status: "interviewing",
+      dateApplied: "2025-04-10",
+      nextStep: "Technical Interview",
     },
     {
-      id: '3',
-      companyName: 'Amazon',
-      role: 'Product Management Intern',
-      status: 'rejected',
-      dateApplied: '2025-04-01',
-      nextStep: 'N/A'
+      id: "3",
+      companyName: "Amazon",
+      role: "Product Management Intern",
+      status: "rejected",
+      dateApplied: "2025-04-01",
+      nextStep: "N/A",
     },
     {
-      id: '4',
-      companyName: 'Meta',
-      role: 'Data Science Intern',
-      status: 'offer',
-      dateApplied: '2025-03-25',
-      nextStep: 'Accept Offer'
-    }
+      id: "4",
+      companyName: "Meta",
+      role: "Data Science Intern",
+      status: "offer",
+      dateApplied: "2025-03-25",
+      nextStep: "Accept Offer",
+    },
   ]);
 
   const upcomingEvents = [
     {
-      id: '1',
-      title: 'Technical Interview with Google',
-      date: '2025-05-10T14:00:00',
-      company: 'Google',
-      type: 'Technical Interview'
+      id: "1",
+      title: "Technical Interview with Google",
+      date: "2025-05-10T14:00:00",
+      company: "Google",
+      type: "Technical Interview",
     },
     {
-      id: '2',
-      title: 'HR Call with Microsoft',
-      date: '2025-05-12T11:30:00',
-      company: 'Microsoft',
-      type: 'HR Interview'
-    }
+      id: "2",
+      title: "HR Call with Microsoft",
+      date: "2025-05-12T11:30:00",
+      company: "Microsoft",
+      type: "HR Interview",
+    },
   ];
 
   // Calculate statistics
   const totalApplications = applications.length;
   const statusCounts = {
-    applied: applications.filter(app => app.status === 'applied').length,
-    interviewing: applications.filter(app => app.status === 'interviewing').length,
-    offer: applications.filter(app => app.status === 'offer').length,
-    rejected: applications.filter(app => app.status === 'rejected').length,
+    applied: applications.filter((app) => app.status === "applied").length,
+    interviewing: applications.filter((app) => app.status === "interviewing")
+      .length,
+    offer: applications.filter((app) => app.status === "offer").length,
+    rejected: applications.filter((app) => app.status === "rejected").length,
   };
 
   // Chart data
   const chartData = [
-    { name: 'Applied', value: statusCounts.applied, color: '#D3E4FD' },
-    { name: 'Interviewing', value: statusCounts.interviewing, color: '#FEC6A1' },
-    { name: 'Offer', value: statusCounts.offer, color: '#F2FCE2' },
-    { name: 'Rejected', value: statusCounts.rejected, color: '#FFDEE2' },
+    { name: "Applied", value: statusCounts.applied, color: "#D3E4FD" },
+    {
+      name: "Interviewing",
+      value: statusCounts.interviewing,
+      color: "#FEC6A1",
+    },
+    { name: "Offer", value: statusCounts.offer, color: "#F2FCE2" },
+    { name: "Rejected", value: statusCounts.rejected, color: "#FFDEE2" },
   ];
 
   // Progress stages
   const progressStages = [
-    { label: 'Applied', value: statusCounts.applied, color: '#D3E4FD' },
-    { label: 'Interviewing', value: statusCounts.interviewing, color: '#FEC6A1' },
-    { label: 'Offer', value: statusCounts.offer, color: '#F2FCE2' },
-    { label: 'Rejected', value: statusCounts.rejected, color: '#FFDEE2' },
+    { label: "Applied", value: statusCounts.applied, color: "#D3E4FD" },
+    {
+      label: "Interviewing",
+      value: statusCounts.interviewing,
+      color: "#FEC6A1",
+    },
+    { label: "Offer", value: statusCounts.offer, color: "#F2FCE2" },
+    { label: "Rejected", value: statusCounts.rejected, color: "#FFDEE2" },
   ];
 
   // Event handlers
@@ -97,10 +125,12 @@ const Dashboard = () => {
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
-    setApplications(applications.map(app => 
-      app.id === id ? { ...app, status: newStatus as any } : app
-    ));
-    
+    setApplications(
+      applications.map((app) =>
+        app.id === id ? { ...app, status: newStatus as any } : app
+      )
+    );
+
     toast({
       title: "Status updated",
       description: `Application status updated to ${newStatus}`,
@@ -108,10 +138,79 @@ const Dashboard = () => {
   };
 
   const handleAddApplication = () => {
-    toast({
-      title: "New application",
-      description: "Creating a new application",
-    });
+    // open add application dialog
+    setShowAddDialog(true);
+  };
+
+  const [showAddDialog, setShowAddDialog] = React.useState(false);
+
+  const [editingApp, setEditingApp] = React.useState<Application | null>(null);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+
+  // form state for new application on dashboard
+  const [companyName, setCompanyName] = React.useState("");
+  const [role, setRole] = React.useState("");
+  const [status, setStatus] = React.useState<Application["status"]>("applied");
+  const [dateApplied, setDateApplied] = React.useState("");
+  const [nextStep, setNextStep] = React.useState("");
+
+  const handleCreateApplication = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (editingApp) {
+      const updated: Application = {
+        id: editingApp.id,
+        companyName: companyName || editingApp.companyName,
+        role: role || editingApp.role,
+        status,
+        dateApplied: dateApplied || editingApp.dateApplied,
+        nextStep: nextStep || editingApp.nextStep,
+      };
+      setApplications((prev) =>
+        prev.map((a) => (a.id === editingApp.id ? updated : a))
+      );
+      toast({
+        title: "Application updated",
+        description: `${updated.companyName} — ${updated.role}`,
+      });
+      setEditingApp(null);
+    } else {
+      const newApp: Application = {
+        id: String(Date.now()),
+        companyName: companyName || "Untitled",
+        role: role || "Unknown Role",
+        status: status,
+        dateApplied: dateApplied || new Date().toISOString().slice(0, 10),
+        nextStep: nextStep || "N/A",
+      };
+      setApplications((prev) => [newApp, ...prev]);
+      toast({
+        title: "Application added",
+        description: `${newApp.companyName} — ${newApp.role}`,
+      });
+    }
+    // reset form and close
+    setCompanyName("");
+    setRole("");
+    setStatus("applied");
+    setDateApplied("");
+    setNextStep("");
+    setShowAddDialog(false);
+  };
+
+  const handleEdit = (app: Application) => {
+    setEditingApp(app);
+    setCompanyName(app.companyName);
+    setRole(app.role);
+    setStatus(app.status);
+    setDateApplied(app.dateApplied);
+    setNextStep(app.nextStep);
+    setShowAddDialog(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setDeletingId(id);
+    setShowDeleteDialog(true);
   };
 
   return (
@@ -157,13 +256,137 @@ const Dashboard = () => {
       {/* Applications and calendar */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
-          <ApplicationsTable 
-            applications={applications} 
+          <ApplicationsTable
+            applications={applications}
             onAddNote={handleAddNote}
             onStatusChange={handleStatusChange}
             onAddApplication={handleAddApplication}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </div>
+        {/* Delete confirmation dialog for Dashboard */}
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm delete</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this application? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeletingId(null);
+                }}
+              >
+                No
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (deletingId) {
+                    setApplications((prev) =>
+                      prev.filter((a) => a.id !== deletingId)
+                    );
+                    toast({ title: "Application deleted" });
+                  }
+                  setShowDeleteDialog(false);
+                  setDeletingId(null);
+                }}
+              >
+                Yes, delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        {/* Add Application Dialog on Dashboard */}
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Application</DialogTitle>
+              <DialogDescription>
+                Create a new internship application and add it to your dashboard
+                table.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form
+              className="grid gap-3 py-4"
+              onSubmit={handleCreateApplication}
+            >
+              <label className="flex flex-col">
+                <span className="text-sm">Company</span>
+                <Input
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="text-sm">Role</span>
+                <Input
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  required
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col">
+                  <span className="text-sm">Status</span>
+                  <Select
+                    value={status}
+                    onValueChange={(v) => setStatus(v as Application["status"])}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="applied">Applied</SelectItem>
+                      <SelectItem value="interviewing">Interviewing</SelectItem>
+                      <SelectItem value="offer">Offer</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </label>
+
+                <label className="flex flex-col">
+                  <span className="text-sm">Date Applied</span>
+                  <Input
+                    type="date"
+                    value={dateApplied}
+                    onChange={(e) => setDateApplied(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              <label className="flex flex-col">
+                <span className="text-sm">Next Step</span>
+                <Input
+                  value={nextStep}
+                  onChange={(e) => setNextStep(e.target.value)}
+                />
+              </label>
+
+              <DialogFooter>
+                <div className="flex w-full justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Add Application</Button>
+                </div>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
         <div>
           <UpcomingEvents events={upcomingEvents} />
         </div>

@@ -1,34 +1,28 @@
-
-import React from 'react';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CalendarClock, Edit, Plus } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { CalendarClock, Edit, Plus, Trash2 } from "lucide-react";
+import React from "react";
 
 export interface Application {
   id: string;
   companyName: string;
   role: string;
-  status: 'applied' | 'interviewing' | 'offer' | 'rejected';
+  status: "applied" | "interviewing" | "offer" | "rejected";
   dateApplied: string;
   nextStep: string;
 }
@@ -36,27 +30,31 @@ export interface Application {
 interface ApplicationsTableProps {
   applications: Application[];
   onAddNote?: (id: string) => void;
-  onStatusChange?: (id: string, status: Application['status']) => void;
+  onStatusChange?: (id: string, status: Application["status"]) => void;
   onAddApplication?: () => void;
+  onEdit?: (app: Application) => void;
+  onDelete?: (id: string) => void;
 }
 
 const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
   applications,
   onAddNote,
   onStatusChange,
-  onAddApplication
+  onAddApplication,
+  onEdit,
+  onDelete,
 }) => {
   // Helper function to render status badge
-  const renderStatus = (status: Application['status']) => {
+  const renderStatus = (status: Application["status"]) => {
     const statusMap = {
-      applied: { label: 'Applied', className: 'status-applied' },
-      interviewing: { label: 'Interviewing', className: 'status-interviewing' },
-      offer: { label: 'Offer', className: 'status-offer' },
-      rejected: { label: 'Rejected', className: 'status-rejected' }
+      applied: { label: "Applied", className: "status-applied" },
+      interviewing: { label: "Interviewing", className: "status-interviewing" },
+      offer: { label: "Offer", className: "status-offer" },
+      rejected: { label: "Rejected", className: "status-rejected" },
     };
 
     const { label, className } = statusMap[status];
-    
+
     return (
       <Badge variant="outline" className={`status-pill ${className}`}>
         {label}
@@ -88,7 +86,9 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
             <TableBody>
               {applications.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium">{app.companyName}</TableCell>
+                  <TableCell className="font-medium">
+                    {app.companyName}
+                  </TableCell>
                   <TableCell>{app.role}</TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -96,16 +96,26 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
                         {renderStatus(app.status)}
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => onStatusChange?.(app.id, 'applied')}>
+                        <DropdownMenuItem
+                          onClick={() => onStatusChange?.(app.id, "applied")}
+                        >
                           Applied
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onStatusChange?.(app.id, 'interviewing')}>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            onStatusChange?.(app.id, "interviewing")
+                          }
+                        >
                           Interviewing
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onStatusChange?.(app.id, 'offer')}>
+                        <DropdownMenuItem
+                          onClick={() => onStatusChange?.(app.id, "offer")}
+                        >
                           Offer
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onStatusChange?.(app.id, 'rejected')}>
+                        <DropdownMenuItem
+                          onClick={() => onStatusChange?.(app.id, "rejected")}
+                        >
                           Rejected
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -114,11 +124,26 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
                   <TableCell>{app.dateApplied}</TableCell>
                   <TableCell>{app.nextStep}</TableCell>
                   <TableCell className="flex justify-end gap-2">
-                    <Button size="sm" variant="outline" onClick={() => onAddNote?.(app.id)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onAddNote?.(app.id)}
+                    >
                       <CalendarClock className="h-3.5 w-3.5 mr-1" /> Log Event
                     </Button>
-                    <Button size="icon" variant="outline">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => onEdit?.(app)}
+                    >
                       <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      onClick={() => onDelete?.(app.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
                 </TableRow>
