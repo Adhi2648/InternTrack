@@ -23,64 +23,59 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import useApplications from "@/hooks/useApplications";
 import { Calendar, CheckCircle, Clock, FileUp } from "lucide-react";
 import React, { useState } from "react";
 
 const Dashboard = () => {
+  // All hooks at top to prevent conditional hook ordering issues
   const { toast } = useToast();
+  const appsQuery = useApplications();
+  const applications = (appsQuery.data ?? []) as Application[];
+  const [showAddDialog, setShowAddDialog] = React.useState(false);
+  const [editingApp, setEditingApp] = React.useState<Application | null>(null);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [companyName, setCompanyName] = React.useState("");
+  const [role, setRole] = React.useState("");
+  const [status, setStatus] = React.useState<Application["status"]>("applied");
+  const [dateApplied, setDateApplied] = React.useState("");
+  const [nextStep, setNextStep] = React.useState("");
 
-  // Sample data for the dashboard
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: "1",
-      companyName: "Google",
-      role: "Frontend Engineering Intern",
-      status: "applied",
-      dateApplied: "2025-04-15",
-      nextStep: "Phone Screen",
-    },
-    {
-      id: "2",
-      companyName: "Microsoft",
-      role: "Software Engineering Intern",
-      status: "interviewing",
-      dateApplied: "2025-04-10",
-      nextStep: "Technical Interview",
-    },
-    {
-      id: "3",
-      companyName: "Amazon",
-      role: "Product Management Intern",
-      status: "rejected",
-      dateApplied: "2025-04-01",
-      nextStep: "N/A",
-    },
-    {
-      id: "4",
-      companyName: "Meta",
-      role: "Data Science Intern",
-      status: "offer",
-      dateApplied: "2025-03-25",
-      nextStep: "Accept Offer",
-    },
-  ]);
+  if (appsQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading applications...</p>
+      </div>
+    );
+  }
 
-  const upcomingEvents = [
-    {
-      id: "1",
-      title: "Technical Interview with Google",
-      date: "2025-05-10T14:00:00",
-      company: "Google",
-      type: "Technical Interview",
-    },
-    {
-      id: "2",
-      title: "HR Call with Microsoft",
-      date: "2025-05-12T11:30:00",
-      company: "Microsoft",
-      type: "HR Interview",
-    },
-  ];
+  if (appsQuery.isError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 font-semibold">
+            Failed to load applications
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {(appsQuery.error as any)?.message || "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Generate upcoming events from applications with nextStep values
+  const upcomingEvents = applications
+    .filter((app) => app.nextStep && app.nextStep.trim().length > 0)
+    .map((app) => ({
+      id: app.id,
+      title: `${app.nextStep} - ${app.role}`,
+      date: new Date().toISOString(), // Use current date as base; can be enhanced with actual event dates
+      company: app.companyName,
+      type: app.nextStep,
+    }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // Calculate statistics
   const totalApplications = applications.length;
@@ -125,16 +120,20 @@ const Dashboard = () => {
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
-    setApplications(
-      applications.map((app) =>
-        app.id === id ? { ...app, status: newStatus as any } : app
-      )
-    );
-
-    toast({
-      title: "Status updated",
-      description: `Application status updated to ${newStatus}`,
-    });
+    (async () => {
+      try {
+        await appsQuery.update.mutateAsync({
+          id,
+          payload: { status: newStatus },
+        });
+        toast({
+          title: "Status updated",
+          description: `Application status updated to ${newStatus}`,
+        });
+      } catch (err) {
+        toast({ title: "Error", description: "Failed to update status" });
+      }
+    })();
   };
 
   const handleAddApplication = () => {
@@ -142,53 +141,37 @@ const Dashboard = () => {
     setShowAddDialog(true);
   };
 
-  const [showAddDialog, setShowAddDialog] = React.useState(false);
-
-  const [editingApp, setEditingApp] = React.useState<Application | null>(null);
-  const [deletingId, setDeletingId] = React.useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
-
-  // form state for new application on dashboard
-  const [companyName, setCompanyName] = React.useState("");
-  const [role, setRole] = React.useState("");
-  const [status, setStatus] = React.useState<Application["status"]>("applied");
-  const [dateApplied, setDateApplied] = React.useState("");
-  const [nextStep, setNextStep] = React.useState("");
-
   const handleCreateApplication = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (editingApp) {
-      const updated: Application = {
-        id: editingApp.id,
-        companyName: companyName || editingApp.companyName,
-        role: role || editingApp.role,
-        status,
-        dateApplied: dateApplied || editingApp.dateApplied,
-        nextStep: nextStep || editingApp.nextStep,
-      };
-      setApplications((prev) =>
-        prev.map((a) => (a.id === editingApp.id ? updated : a))
-      );
-      toast({
-        title: "Application updated",
-        description: `${updated.companyName} — ${updated.role}`,
-      });
-      setEditingApp(null);
-    } else {
-      const newApp: Application = {
-        id: String(Date.now()),
-        companyName: companyName || "Untitled",
-        role: role || "Unknown Role",
-        status: status,
-        dateApplied: dateApplied || new Date().toISOString().slice(0, 10),
-        nextStep: nextStep || "N/A",
-      };
-      setApplications((prev) => [newApp, ...prev]);
-      toast({
-        title: "Application added",
-        description: `${newApp.companyName} — ${newApp.role}`,
-      });
-    }
+    (async () => {
+      try {
+        if (editingApp) {
+          await appsQuery.update.mutateAsync({
+            id: editingApp.id,
+            payload: { companyName, role, status, dateApplied, nextStep },
+          });
+          toast({
+            title: "Application updated",
+            description: `${companyName} — ${role}`,
+          });
+          setEditingApp(null);
+        } else {
+          await appsQuery.create.mutateAsync({
+            companyName,
+            role,
+            status,
+            dateApplied: dateApplied || new Date().toISOString().slice(0, 10),
+            nextStep,
+          });
+          toast({
+            title: "Application added",
+            description: `${companyName} — ${role}`,
+          });
+        }
+      } catch (err) {
+        toast({ title: "Error", description: "Failed to save application" });
+      }
+    })();
     // reset form and close
     setCompanyName("");
     setRole("");
@@ -287,12 +270,17 @@ const Dashboard = () => {
               </Button>
               <Button
                 variant="destructive"
-                onClick={() => {
+                onClick={async () => {
                   if (deletingId) {
-                    setApplications((prev) =>
-                      prev.filter((a) => a.id !== deletingId)
-                    );
-                    toast({ title: "Application deleted" });
+                    try {
+                      await appsQuery.remove.mutateAsync(deletingId);
+                      toast({ title: "Application deleted" });
+                    } catch (err) {
+                      toast({
+                        title: "Error",
+                        description: "Failed to delete",
+                      });
+                    }
                   }
                   setShowDeleteDialog(false);
                   setDeletingId(null);

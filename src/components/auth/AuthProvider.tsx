@@ -36,9 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const login = async (username: string, password: string) => {
-    // Use mock auth server during development
-    // POST http://localhost:4000/api/login expected to return { token }
-    const res = await fetch("http://localhost:4000/api/login", {
+    // Use backend auth server during development
+    // POST http://localhost:4001/api/auth/login expected to return { token }
+    const res = await fetch("http://localhost:4001/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

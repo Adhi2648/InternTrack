@@ -46,14 +46,18 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
 }) => {
   // Helper function to render status badge
   const renderStatus = (status: Application["status"]) => {
-    const statusMap = {
+    const statusMap: Record<string, { label: string; className: string }> = {
       applied: { label: "Applied", className: "status-applied" },
       interviewing: { label: "Interviewing", className: "status-interviewing" },
       offer: { label: "Offer", className: "status-offer" },
       rejected: { label: "Rejected", className: "status-rejected" },
     };
 
-    const { label, className } = statusMap[status];
+    const statusInfo = statusMap[status] || {
+      label: status,
+      className: "status-unknown",
+    };
+    const { label, className } = statusInfo;
 
     return (
       <Badge variant="outline" className={`status-pill ${className}`}>
