@@ -44,6 +44,19 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
   onEdit,
   onDelete,
 }) => {
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
+    } catch {
+      return dateString;
+    }
+  };
+
   // Helper function to render status badge
   const renderStatus = (status: Application["status"]) => {
     const statusMap: Record<string, { label: string; className: string }> = {
@@ -75,26 +88,32 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border overflow-hidden">
-          <Table>
+        <div className="rounded-md border overflow-hidden w-full">
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>Company</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date Applied</TableHead>
-                <TableHead>Next Step</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="whitespace-nowrap">Company</TableHead>
+                <TableHead className="whitespace-nowrap">Role</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="whitespace-nowrap">
+                  Date Applied
+                </TableHead>
+                <TableHead className="whitespace-nowrap">Next Step</TableHead>
+                <TableHead className="text-right whitespace-nowrap">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {applications.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium whitespace-nowrap">
                     {app.companyName}
                   </TableCell>
-                  <TableCell>{app.role}</TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {app.role}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         {renderStatus(app.status)}
@@ -125,18 +144,24 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
-                  <TableCell>{app.dateApplied}</TableCell>
-                  <TableCell>{app.nextStep}</TableCell>
-                  <TableCell className="flex justify-end gap-2">
+                  <TableCell className="whitespace-nowrap">
+                    {formatDate(app.dateApplied)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {app.nextStep}
+                  </TableCell>
+                  <TableCell className="flex justify-end gap-1 whitespace-nowrap">
                     <Button
                       size="sm"
                       variant="outline"
+                      className="hidden sm:flex"
                       onClick={() => onAddNote?.(app.id)}
                     >
                       <CalendarClock className="h-3.5 w-3.5 mr-1" /> Log Event
                     </Button>
                     <Button
                       size="icon"
+                      className="h-8 w-8"
                       variant="outline"
                       onClick={() => onEdit?.(app)}
                     >
@@ -144,6 +169,7 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
                     </Button>
                     <Button
                       size="icon"
+                      className="h-8 w-8"
                       variant="destructive"
                       onClick={() => onDelete?.(app.id)}
                     >
