@@ -4,14 +4,28 @@ import { useNavigate } from "react-router-dom";
 type AuthContextType = {
   token: string | null;
   isAuthenticated: boolean;
+  username: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   authFetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+  user?: { username: string };
 };
 
 const AuthContext = React.createContext<AuthContextType | null>(null);
 
 const TOKEN_KEY = "auth_token";
+
+// Helper function to decode JWT and extract username
+function decodeToken(token: string): { username: string; sub: string } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return { username: payload.username, sub: payload.sub };
+  } catch {
+    return null;
+  }
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -26,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   const isAuthenticated = !!token;
+  const decoded = token ? decodeToken(token) : null;
+  const username = decoded?.username || null;
 
   const saveToken = (t: string | null) => {
     setToken(t);
@@ -66,8 +82,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const value = React.useMemo(
-    () => ({ token, isAuthenticated, login, logout, authFetch }),
-    [token]
+    () => ({
+      token,
+      isAuthenticated,
+      username,
+      user: username ? { username } : undefined,
+      login,
+      logout,
+      authFetch,
+    }),
+    [token, username]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

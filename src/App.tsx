@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Resumes from "./pages/Resumes";
+import Signup from "./pages/Signup";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
               }
             />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

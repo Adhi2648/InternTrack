@@ -42,7 +42,7 @@ router.post("/", authMiddleware, async (req, res) => {
       userId: req.user.id,
       companyName: payload.companyName || "",
       role: payload.role || "",
-      status: payload.status || "Applied",
+      status: payload.status || "applied",
       dateApplied: payload.dateApplied
         ? new Date(payload.dateApplied)
         : Date.now(),

@@ -14,7 +14,7 @@ export type ApplicationDto = {
 const API_BASE = "http://localhost:4001/api";
 
 export function useApplications() {
-  const { authFetch, isAuthenticated, token } = useAuth();
+  const { authFetch, isAuthenticated, token, username } = useAuth();
   const queryClient = useQueryClient();
 
   const fetcher = async () => {
@@ -52,7 +52,7 @@ export function useApplications() {
   };
 
   const query = useQuery({
-    queryKey: ["applications"],
+    queryKey: ["applications", username],
     queryFn: fetcher,
     staleTime: 1000 * 60 * 2,
     enabled: isAuthenticated,
@@ -70,7 +70,7 @@ export function useApplications() {
       return res.json();
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["applications"] }),
+      queryClient.invalidateQueries({ queryKey: ["applications", username] }),
   });
 
   const update = useMutation({
@@ -90,7 +90,7 @@ export function useApplications() {
       return res.json();
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["applications"] }),
+      queryClient.invalidateQueries({ queryKey: ["applications", username] }),
   });
 
   const remove = useMutation({
@@ -103,7 +103,7 @@ export function useApplications() {
       return true;
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["applications"] }),
+      queryClient.invalidateQueries({ queryKey: ["applications", username] }),
   });
 
   return {

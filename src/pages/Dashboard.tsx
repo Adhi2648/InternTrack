@@ -119,7 +119,7 @@ const Dashboard = () => {
     });
   };
 
-  const handleStatusChange = (id: string, newStatus: string) => {
+  const handleStatusChange = (id: string, newStatus: Application["status"]) => {
     (async () => {
       try {
         await appsQuery.update.mutateAsync({
@@ -230,155 +230,154 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Charts row */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <ProgressBar stages={progressStages} total={totalApplications} />
-        <StatusChart data={chartData} />
-      </div>
-
-      {/* Applications and calendar */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <ApplicationsTable
-            applications={applications}
-            onAddNote={handleAddNote}
-            onStatusChange={handleStatusChange}
-            onAddApplication={handleAddApplication}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </div>
-        {/* Delete confirmation dialog for Dashboard */}
-        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm delete</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this application? This action
-                cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex items-center justify-end gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowDeleteDialog(false);
-                  setDeletingId(null);
-                }}
-              >
-                No
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={async () => {
-                  if (deletingId) {
-                    try {
-                      await appsQuery.remove.mutateAsync(deletingId);
-                      toast({ title: "Application deleted" });
-                    } catch (err) {
-                      toast({
-                        title: "Error",
-                        description: "Failed to delete",
-                      });
-                    }
-                  }
-                  setShowDeleteDialog(false);
-                  setDeletingId(null);
-                }}
-              >
-                Yes, delete
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        {/* Add Application Dialog on Dashboard */}
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Application</DialogTitle>
-              <DialogDescription>
-                Create a new internship application and add it to your dashboard
-                table.
-              </DialogDescription>
-            </DialogHeader>
-
-            <form
-              className="grid gap-3 py-4"
-              onSubmit={handleCreateApplication}
-            >
-              <label className="flex flex-col">
-                <span className="text-sm">Company</span>
-                <Input
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  required
-                />
-              </label>
-
-              <label className="flex flex-col">
-                <span className="text-sm">Role</span>
-                <Input
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  required
-                />
-              </label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex flex-col">
-                  <span className="text-sm">Status</span>
-                  <Select
-                    value={status}
-                    onValueChange={(v) => setStatus(v as Application["status"])}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="applied">Applied</SelectItem>
-                      <SelectItem value="interviewing">Interviewing</SelectItem>
-                      <SelectItem value="offer">Offer</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </label>
-
-                <label className="flex flex-col">
-                  <span className="text-sm">Date Applied</span>
-                  <Input
-                    type="date"
-                    value={dateApplied}
-                    onChange={(e) => setDateApplied(e.target.value)}
-                  />
-                </label>
-              </div>
-
-              <label className="flex flex-col">
-                <span className="text-sm">Next Step</span>
-                <Input
-                  value={nextStep}
-                  onChange={(e) => setNextStep(e.target.value)}
-                />
-              </label>
-
-              <DialogFooter>
-                <div className="flex w-full justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAddDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit">Add Application</Button>
-                </div>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-        <div>
+      {/* Main content grid - reorganized */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Left column - Progress and Events */}
+        <div className="space-y-4">
+          <ProgressBar stages={progressStages} total={totalApplications} />
           <UpcomingEvents events={upcomingEvents} />
         </div>
+
+        {/* Right column - Status Chart */}
+        <div>
+          <StatusChart data={chartData} />
+        </div>
       </div>
+
+      {/* Full width - Applications table */}
+      <ApplicationsTable
+        applications={applications}
+        onAddNote={handleAddNote}
+        onStatusChange={handleStatusChange}
+        onAddApplication={handleAddApplication}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      {/* Delete confirmation dialog for Dashboard */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this application? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-end gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setDeletingId(null);
+              }}
+            >
+              No
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (deletingId) {
+                  try {
+                    await appsQuery.remove.mutateAsync(deletingId);
+                    toast({ title: "Application deleted" });
+                  } catch (err) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to delete",
+                    });
+                  }
+                }
+                setShowDeleteDialog(false);
+                setDeletingId(null);
+              }}
+            >
+              Yes, delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Add Application Dialog on Dashboard */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Application</DialogTitle>
+            <DialogDescription>
+              Create a new internship application and add it to your dashboard
+              table.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="grid gap-3 py-4" onSubmit={handleCreateApplication}>
+            <label className="flex flex-col">
+              <span className="text-sm">Company</span>
+              <Input
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+              />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm">Role</span>
+              <Input
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              />
+            </label>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex flex-col">
+                <span className="text-sm">Status</span>
+                <Select
+                  value={status}
+                  onValueChange={(v) => setStatus(v as Application["status"])}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="applied">Applied</SelectItem>
+                    <SelectItem value="interviewing">Interviewing</SelectItem>
+                    <SelectItem value="offer">Offer</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+
+              <label className="flex flex-col">
+                <span className="text-sm">Date Applied</span>
+                <Input
+                  type="date"
+                  value={dateApplied}
+                  onChange={(e) => setDateApplied(e.target.value)}
+                />
+              </label>
+            </div>
+
+            <label className="flex flex-col">
+              <span className="text-sm">Next Step</span>
+              <Input
+                value={nextStep}
+                onChange={(e) => setNextStep(e.target.value)}
+              />
+            </label>
+
+            <DialogFooter>
+              <div className="flex w-full justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Add Application</Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

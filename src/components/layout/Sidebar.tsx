@@ -1,3 +1,5 @@
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -17,9 +19,11 @@ import {
   FileText,
   FileUp,
   LayoutDashboard,
+  LogOut,
   Settings,
+  User,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Menu items
 const menuItems = [
@@ -52,6 +56,13 @@ const menuItems = [
 
 export function AppSidebar() {
   const { state, isMobile } = useSidebar();
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    auth.logout();
+    navigate("/login");
+  };
 
   return (
     <>
@@ -97,6 +108,24 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <div className="border-t p-4 space-y-2">
+          <Button
+            variant="outline"
+            className="w-full justify-start cursor-default"
+            disabled
+          >
+            <User className="h-4 w-4 mr-2" />
+            <span className="truncate">{auth.user?.username || "User"}</span>
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
       </Sidebar>
       {/* Floating hamburger trigger when the sidebar is collapsed on desktop */}
       {!isMobile && state === "collapsed" && (

@@ -73,6 +73,19 @@ const Login: React.FC = () => {
               Fill demo
             </button>
           </div>
+
+          <div className="text-center">
+            <span className="text-sm text-muted-foreground">
+              Don't have an account?{" "}
+            </span>
+            <button
+              type="button"
+              onClick={() => navigate("/signup")}
+              className="text-sm text-primary hover:underline"
+            >
+              Sign up
+            </button>
+          </div>
         </form>
       </div>
     </div>
