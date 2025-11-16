@@ -14,6 +14,8 @@ type AuthContextType = {
 const AuthContext = React.createContext<AuthContextType | null>(null);
 
 const TOKEN_KEY = "auth_token";
+const LAST_ACTIVITY_KEY = "last_activity";
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 // Helper function to decode JWT and extract username
 function decodeToken(token: string): { username: string; sub: string } | null {
@@ -33,7 +35,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const navigate = useNavigate();
   const [token, setToken] = React.useState<string | null>(() => {
     try {
-      return localStorage.getItem(TOKEN_KEY);
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+      // Check if token exists and is not stale
+      if (storedToken) {
+        const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+        if (lastActivity) {
+          const timeSinceActivity = Date.now() - parseInt(lastActivity);
+          if (timeSinceActivity > INACTIVITY_TIMEOUT) {
+            // Token expired due to inactivity
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(LAST_ACTIVITY_KEY);
+            return null;
+          }
+        }
+      }
+      return storedToken;
     } catch {
       return null;
     }
@@ -43,11 +59,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const decoded = token ? decodeToken(token) : null;
   const username = decoded?.username || null;
 
+  // Update last activity timestamp
+  const updateActivity = React.useCallback(() => {
+    if (token) {
+      try {
+        localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+      } catch {}
+    }
+  }, [token]);
+
+  // Set up inactivity timer
+  React.useEffect(() => {
+    if (!token) return;
+
+    const events = ["mousedown", "keydown", "scroll", "touchstart", "click"];
+
+    events.forEach((event) => {
+      window.addEventListener(event, updateActivity);
+    });
+
+    // Check for inactivity periodically
+    const inactivityInterval = setInterval(() => {
+      try {
+        const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+        if (lastActivity) {
+          const timeSinceActivity = Date.now() - parseInt(lastActivity);
+          if (timeSinceActivity > INACTIVITY_TIMEOUT) {
+            // Inactivity timeout - logout user
+            saveToken(null);
+            navigate("/login", { replace: true });
+          }
+        }
+      } catch {}
+    }, 60000); // Check every minute
+
+    // Clear token on page unload
+    const handleBeforeUnload = () => {
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(LAST_ACTIVITY_KEY);
+      } catch {}
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, updateActivity);
+      });
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearInterval(inactivityInterval);
+    };
+  }, [token, updateActivity, navigate]);
+
+  // Initial activity update on load
+  React.useEffect(() => {
+    updateActivity();
+  }, []);
+
   const saveToken = (t: string | null) => {
     setToken(t);
     try {
-      if (t) localStorage.setItem(TOKEN_KEY, t);
-      else localStorage.removeItem(TOKEN_KEY);
+      if (t) {
+        localStorage.setItem(TOKEN_KEY, t);
+        localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(LAST_ACTIVITY_KEY);
+      }
     } catch {}
   };
 
