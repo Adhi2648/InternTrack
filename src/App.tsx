@@ -6,9 +6,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./components/auth/AuthProvider";
 import RequireAuth from "./components/auth/RequireAuth";
 import MainLayout from "./components/layout/MainLayout";
+import { ThemeProvider } from "./components/ThemeProvider";
 import Applications from "./pages/Applications";
 import Calendar from "./pages/Calendar";
 import Dashboard from "./pages/Dashboard";
+import Internships from "./pages/Internships";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Resumes from "./pages/Resumes";
@@ -17,61 +19,73 @@ import Signup from "./pages/Signup";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <RequireAuth>
-                  <MainLayout>
-                    <Dashboard />
-                  </MainLayout>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/applications"
-              element={
-                <RequireAuth>
-                  <MainLayout>
-                    <Applications />
-                  </MainLayout>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <RequireAuth>
-                  <MainLayout>
-                    <Calendar />
-                  </MainLayout>
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/resumes"
-              element={
-                <RequireAuth>
-                  <MainLayout>
-                    <Resumes />
-                  </MainLayout>
-                </RequireAuth>
-              }
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Dashboard />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/applications"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Applications />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/calendar"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Calendar />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/resumes"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Resumes />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/internships"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Internships />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

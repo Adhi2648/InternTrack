@@ -174,7 +174,9 @@ const Applications = () => {
             variant={activeFilter === "applied" ? "default" : "outline"}
             size="sm"
             className={
-              activeFilter === "applied" ? "text-white" : "text-blue-800"
+              activeFilter === "applied"
+                ? ""
+                : "text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
             }
             onClick={() => setActiveFilter("applied")}
           >
@@ -184,7 +186,9 @@ const Applications = () => {
             variant={activeFilter === "interviewing" ? "default" : "outline"}
             size="sm"
             className={
-              activeFilter === "interviewing" ? "text-white" : "text-orange-800"
+              activeFilter === "interviewing"
+                ? ""
+                : "text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950"
             }
             onClick={() => setActiveFilter("interviewing")}
           >
@@ -194,7 +198,9 @@ const Applications = () => {
             variant={activeFilter === "offer" ? "default" : "outline"}
             size="sm"
             className={
-              activeFilter === "offer" ? "text-white" : "text-green-800"
+              activeFilter === "offer"
+                ? ""
+                : "text-green-700 dark:text-green-400 border-green-300 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-950"
             }
             onClick={() => setActiveFilter("offer")}
           >
@@ -204,7 +210,9 @@ const Applications = () => {
             variant={activeFilter === "rejected" ? "default" : "outline"}
             size="sm"
             className={
-              activeFilter === "rejected" ? "text-white" : "text-red-800"
+              activeFilter === "rejected"
+                ? ""
+                : "text-red-700 dark:text-red-400 border-red-300 dark:border-red-700 hover:bg-red-50 dark:hover:bg-red-950"
             }
             onClick={() => setActiveFilter("rejected")}
           >

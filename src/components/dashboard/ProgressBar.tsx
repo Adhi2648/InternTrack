@@ -1,6 +1,5 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
 
 interface ProgressStage {
   label: string;
@@ -20,7 +19,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ stages, total }) => {
         <CardTitle>Application Progress</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-4 bg-muted rounded-full overflow-hidden">
           {stages.map((stage, index) => {
             const width = total > 0 ? (stage.value / total) * 100 : 0;
             return (
@@ -29,7 +28,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ stages, total }) => {
                 className="h-full float-left"
                 style={{
                   width: `${width}%`,
-                  backgroundColor: stage.color
+                  backgroundColor: stage.color,
                 }}
               />
             );

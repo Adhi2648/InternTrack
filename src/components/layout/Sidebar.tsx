@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
+  Briefcase,
   Calendar,
   FileText,
   FileUp,
@@ -36,6 +37,11 @@ const menuItems = [
     title: "Applications",
     url: "/applications",
     icon: FileText,
+  },
+  {
+    title: "Internships",
+    url: "/internships",
+    icon: Briefcase,
   },
   {
     title: "Calendar",

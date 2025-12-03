@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -73,7 +72,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -99,24 +98,24 @@
   .status-pill {
     @apply px-3 py-1 rounded-full text-xs font-medium;
   }
-  
+
   .status-applied {
-    @apply bg-status-applied text-blue-800;
+    @apply bg-blue-500/20 text-blue-600 dark:bg-blue-500/30 dark:text-blue-300 border-blue-500/30;
   }
-  
+
   .status-interviewing {
-    @apply bg-status-interviewing text-orange-800;
+    @apply bg-orange-500/20 text-orange-600 dark:bg-orange-500/30 dark:text-orange-300 border-orange-500/30;
   }
-  
+
   .status-offer {
-    @apply bg-status-offer text-green-800;
+    @apply bg-green-500/20 text-green-600 dark:bg-green-500/30 dark:text-green-300 border-green-500/30;
   }
-  
+
   .status-rejected {
-    @apply bg-status-rejected text-red-800;
+    @apply bg-red-500/20 text-red-600 dark:bg-red-500/30 dark:text-red-300 border-red-500/30;
   }
 
   .stat-card {
-    @apply p-4 rounded-lg border shadow-sm bg-white flex flex-col;
+    @apply p-4 rounded-lg border shadow-sm bg-card text-card-foreground flex flex-col;
   }
 }
