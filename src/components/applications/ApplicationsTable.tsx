@@ -25,6 +25,7 @@ export interface Application {
   status: "applied" | "interviewing" | "offer" | "rejected";
   dateApplied: string;
   nextStep: string;
+  eventDate?: string;
 }
 
 interface ApplicationsTableProps {
@@ -34,6 +35,7 @@ interface ApplicationsTableProps {
   onAddApplication?: () => void;
   onEdit?: (app: Application) => void;
   onDelete?: (id: string) => void;
+  onLogEvent?: (app: Application) => void;
 }
 
 const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
@@ -43,6 +45,7 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
   onAddApplication,
   onEdit,
   onDelete,
+  onLogEvent,
 }) => {
   // Helper function to format date
   const formatDate = (dateString: string) => {
@@ -155,7 +158,7 @@ const ApplicationsTable: React.FC<ApplicationsTableProps> = ({
                       size="sm"
                       variant="outline"
                       className="hidden sm:flex"
-                      onClick={() => onAddNote?.(app.id)}
+                      onClick={() => onLogEvent?.(app)}
                     >
                       <CalendarClock className="h-3.5 w-3.5 mr-1" /> Log Event
                     </Button>

@@ -38,7 +38,7 @@ router.get("/", authMiddleware, async (req, res) => {
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const payload = req.body || {};
-    const app = await Application.create({
+    const appData = {
       userId: req.user.id,
       companyName: payload.companyName || "",
       role: payload.role || "",
@@ -47,7 +47,14 @@ router.post("/", authMiddleware, async (req, res) => {
         ? new Date(payload.dateApplied)
         : Date.now(),
       nextStep: payload.nextStep || "",
-    });
+    };
+
+    // Add eventDate if provided
+    if (payload.eventDate) {
+      appData.eventDate = new Date(payload.eventDate);
+    }
+
+    const app = await Application.create(appData);
     res.status(201).json(app);
   } catch (err) {
     console.error(err);
@@ -59,7 +66,17 @@ router.post("/", authMiddleware, async (req, res) => {
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const id = req.params.id;
-    const update = req.body || {};
+    const payload = req.body || {};
+
+    // Build update object, converting eventDate to Date if provided
+    const update = { ...payload };
+    if (payload.eventDate) {
+      update.eventDate = new Date(payload.eventDate);
+    }
+    if (payload.dateApplied) {
+      update.dateApplied = new Date(payload.dateApplied);
+    }
+
     const app = await Application.findOneAndUpdate(
       { _id: id, userId: req.user.id },
       update,

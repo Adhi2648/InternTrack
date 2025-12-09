@@ -7,6 +7,7 @@ const ApplicationSchema = new mongoose.Schema({
   status: { type: String, default: "Applied" },
   dateApplied: { type: Date, default: Date.now },
   nextStep: { type: String, default: "" },
+  eventDate: { type: Date, default: null }, // Date for the next step/event
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

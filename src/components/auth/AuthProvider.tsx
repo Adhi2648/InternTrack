@@ -93,21 +93,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch {}
     }, 60000); // Check every minute
 
-    // Clear token on page unload
-    const handleBeforeUnload = () => {
-      try {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(LAST_ACTIVITY_KEY);
-      } catch {}
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       events.forEach((event) => {
         window.removeEventListener(event, updateActivity);
       });
-      window.removeEventListener("beforeunload", handleBeforeUnload);
       clearInterval(inactivityInterval);
     };
   }, [token, updateActivity, navigate]);

@@ -41,6 +41,15 @@ const Dashboard = () => {
   const [status, setStatus] = React.useState<Application["status"]>("applied");
   const [dateApplied, setDateApplied] = React.useState("");
   const [nextStep, setNextStep] = React.useState("");
+  const [eventDate, setEventDate] = React.useState("");
+
+  // Log Event dialog state
+  const [showLogEventDialog, setShowLogEventDialog] = React.useState(false);
+  const [logEventApp, setLogEventApp] = React.useState<Application | null>(
+    null
+  );
+  const [logEventDate, setLogEventDate] = React.useState("");
+  const [logEventStep, setLogEventStep] = React.useState("");
 
   if (appsQuery.isLoading) {
     return (
@@ -87,28 +96,28 @@ const Dashboard = () => {
     rejected: applications.filter((app) => app.status === "rejected").length,
   };
 
-  // Chart data
+  // Chart data - Vibrant colors for both light and dark mode
   const chartData = [
-    { name: "Applied", value: statusCounts.applied, color: "#D3E4FD" },
+    { name: "Applied", value: statusCounts.applied, color: "#3B82F6" }, // Blue
     {
       name: "Interviewing",
       value: statusCounts.interviewing,
-      color: "#FEC6A1",
+      color: "#F59E0B", // Amber/Orange
     },
-    { name: "Offer", value: statusCounts.offer, color: "#F2FCE2" },
-    { name: "Rejected", value: statusCounts.rejected, color: "#FFDEE2" },
+    { name: "Offer", value: statusCounts.offer, color: "#10B981" }, // Emerald Green
+    { name: "Rejected", value: statusCounts.rejected, color: "#EF4444" }, // Red
   ];
 
-  // Progress stages
+  // Progress stages - Same vibrant colors
   const progressStages = [
-    { label: "Applied", value: statusCounts.applied, color: "#D3E4FD" },
+    { label: "Applied", value: statusCounts.applied, color: "#3B82F6" },
     {
       label: "Interviewing",
       value: statusCounts.interviewing,
-      color: "#FEC6A1",
+      color: "#F59E0B",
     },
-    { label: "Offer", value: statusCounts.offer, color: "#F2FCE2" },
-    { label: "Rejected", value: statusCounts.rejected, color: "#FFDEE2" },
+    { label: "Offer", value: statusCounts.offer, color: "#10B981" },
+    { label: "Rejected", value: statusCounts.rejected, color: "#EF4444" },
   ];
 
   // Event handlers
@@ -148,7 +157,14 @@ const Dashboard = () => {
         if (editingApp) {
           await appsQuery.update.mutateAsync({
             id: editingApp.id,
-            payload: { companyName, role, status, dateApplied, nextStep },
+            payload: {
+              companyName,
+              role,
+              status,
+              dateApplied,
+              nextStep,
+              eventDate: eventDate || undefined,
+            },
           });
           toast({
             title: "Application updated",
@@ -162,6 +178,7 @@ const Dashboard = () => {
             status,
             dateApplied: dateApplied || new Date().toISOString().slice(0, 10),
             nextStep,
+            eventDate: eventDate || undefined,
           });
           toast({
             title: "Application added",
@@ -178,6 +195,7 @@ const Dashboard = () => {
     setStatus("applied");
     setDateApplied("");
     setNextStep("");
+    setEventDate("");
     setShowAddDialog(false);
   };
 
@@ -188,6 +206,7 @@ const Dashboard = () => {
     setStatus(app.status);
     setDateApplied(app.dateApplied);
     setNextStep(app.nextStep);
+    setEventDate(app.eventDate || "");
     setShowAddDialog(true);
   };
 
@@ -252,6 +271,12 @@ const Dashboard = () => {
         onAddApplication={handleAddApplication}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onLogEvent={(app) => {
+          setLogEventApp(app);
+          setLogEventStep(app.nextStep || "");
+          setLogEventDate(app.eventDate || "");
+          setShowLogEventDialog(true);
+        }}
       />
 
       {/* Delete confirmation dialog for Dashboard */}
@@ -361,7 +386,20 @@ const Dashboard = () => {
               <Input
                 value={nextStep}
                 onChange={(e) => setNextStep(e.target.value)}
+                placeholder="e.g., Technical Interview, HR Call"
               />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm">Event Date (for Calendar)</span>
+              <Input
+                type="datetime-local"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+              />
+              <span className="text-xs text-muted-foreground mt-1">
+                Set a date to see this event on your calendar
+              </span>
             </label>
 
             <DialogFooter>
@@ -373,6 +411,81 @@ const Dashboard = () => {
                   Cancel
                 </Button>
                 <Button type="submit">Add Application</Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Log Event Dialog */}
+      <Dialog open={showLogEventDialog} onOpenChange={setShowLogEventDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>📅 Schedule Event</DialogTitle>
+            <DialogDescription>
+              Add an event date for <strong>{logEventApp?.companyName}</strong>{" "}
+              - {logEventApp?.role}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            className="grid gap-4 py-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!logEventApp) return;
+              try {
+                await appsQuery.update.mutateAsync({
+                  id: logEventApp.id,
+                  payload: {
+                    nextStep: logEventStep,
+                    eventDate: logEventDate,
+                  },
+                });
+                toast({
+                  title: "Event scheduled!",
+                  description: `${logEventStep} on ${new Date(
+                    logEventDate
+                  ).toLocaleDateString()}`,
+                });
+                setShowLogEventDialog(false);
+                setLogEventApp(null);
+                setLogEventDate("");
+                setLogEventStep("");
+              } catch (err) {
+                toast({ title: "Error", description: "Failed to save event" });
+              }
+            }}
+          >
+            <label className="flex flex-col">
+              <span className="text-sm font-medium">Event Type</span>
+              <Input
+                value={logEventStep}
+                onChange={(e) => setLogEventStep(e.target.value)}
+                placeholder="e.g., Technical Interview, HR Call, Final Round"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm font-medium">Event Date & Time</span>
+              <Input
+                type="datetime-local"
+                value={logEventDate}
+                onChange={(e) => setLogEventDate(e.target.value)}
+                required
+              />
+            </label>
+
+            <DialogFooter>
+              <div className="flex w-full justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowLogEventDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Save to Calendar</Button>
               </div>
             </DialogFooter>
           </form>

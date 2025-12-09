@@ -14,6 +14,7 @@ import Internships from "./pages/Internships";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Resumes from "./pages/Resumes";
+import Settings from "./pages/Settings";
 import Signup from "./pages/Signup";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,16 @@ const App = () => (
                   <RequireAuth>
                     <MainLayout>
                       <Internships />
+                    </MainLayout>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <RequireAuth>
+                    <MainLayout>
+                      <Settings />
                     </MainLayout>
                   </RequireAuth>
                 }

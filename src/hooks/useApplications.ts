@@ -9,6 +9,7 @@ export type ApplicationDto = {
   status: "applied" | "interviewing" | "offer" | "rejected";
   dateApplied: string;
   nextStep?: string;
+  eventDate?: string; // Date for the next step/event
 };
 
 const API_BASE = "http://localhost:4001/api";

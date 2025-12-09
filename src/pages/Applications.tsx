@@ -86,12 +86,19 @@ const Applications = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editingApp, setEditingApp] = useState<Application | null>(null);
 
+  // Log Event dialog state
+  const [showLogEventDialog, setShowLogEventDialog] = useState(false);
+  const [logEventApp, setLogEventApp] = useState<Application | null>(null);
+  const [logEventDate, setLogEventDate] = useState("");
+  const [logEventStep, setLogEventStep] = useState("");
+
   // form state for new application
   const [companyName, setCompanyName] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState<Application["status"]>("applied");
   const [dateApplied, setDateApplied] = useState("");
   const [nextStep, setNextStep] = useState("");
+  const [eventDate, setEventDate] = useState("");
 
   const handleCreateApplication = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -99,7 +106,14 @@ const Applications = () => {
       if (editingApp) {
         await appsQuery.update.mutateAsync({
           id: editingApp.id,
-          payload: { companyName, role, status, dateApplied, nextStep },
+          payload: {
+            companyName,
+            role,
+            status,
+            dateApplied,
+            nextStep,
+            eventDate: eventDate || undefined,
+          },
         });
         toast({
           title: "Application updated",
@@ -113,6 +127,7 @@ const Applications = () => {
           status,
           dateApplied: dateApplied || new Date().toISOString().slice(0, 10),
           nextStep,
+          eventDate: eventDate || undefined,
         });
         toast({
           title: "Application added",
@@ -128,6 +143,7 @@ const Applications = () => {
     setStatus("applied");
     setDateApplied("");
     setNextStep("");
+    setEventDate("");
     setShowAddDialog(false);
   };
 
@@ -138,6 +154,7 @@ const Applications = () => {
     setStatus(app.status);
     setDateApplied(app.dateApplied);
     setNextStep(app.nextStep);
+    setEventDate(app.eventDate || "");
     setShowAddDialog(true);
   };
 
@@ -235,6 +252,12 @@ const Applications = () => {
         onAddApplication={handleAddApplication}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onLogEvent={(app) => {
+          setLogEventApp(app);
+          setLogEventStep(app.nextStep || "");
+          setLogEventDate(app.eventDate || "");
+          setShowLogEventDialog(true);
+        }}
       />
 
       {/* Add Application Dialog */}
@@ -300,7 +323,20 @@ const Applications = () => {
               <Input
                 value={nextStep}
                 onChange={(e) => setNextStep(e.target.value)}
+                placeholder="e.g., Technical Interview, HR Call"
               />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm">Event Date (for Calendar)</span>
+              <Input
+                type="datetime-local"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+              />
+              <span className="text-xs text-muted-foreground mt-1">
+                Set a date to see this event on your calendar
+              </span>
             </label>
 
             <DialogFooter>
@@ -356,6 +392,81 @@ const Applications = () => {
               Yes, delete
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Log Event Dialog */}
+      <Dialog open={showLogEventDialog} onOpenChange={setShowLogEventDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>📅 Schedule Event</DialogTitle>
+            <DialogDescription>
+              Add an event date for <strong>{logEventApp?.companyName}</strong>{" "}
+              - {logEventApp?.role}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            className="grid gap-4 py-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!logEventApp) return;
+              try {
+                await appsQuery.update.mutateAsync({
+                  id: logEventApp.id,
+                  payload: {
+                    nextStep: logEventStep,
+                    eventDate: logEventDate,
+                  },
+                });
+                toast({
+                  title: "Event scheduled!",
+                  description: `${logEventStep} on ${new Date(
+                    logEventDate
+                  ).toLocaleDateString()}`,
+                });
+                setShowLogEventDialog(false);
+                setLogEventApp(null);
+                setLogEventDate("");
+                setLogEventStep("");
+              } catch (err) {
+                toast({ title: "Error", description: "Failed to save event" });
+              }
+            }}
+          >
+            <label className="flex flex-col">
+              <span className="text-sm font-medium">Event Type</span>
+              <Input
+                value={logEventStep}
+                onChange={(e) => setLogEventStep(e.target.value)}
+                placeholder="e.g., Technical Interview, HR Call, Final Round"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col">
+              <span className="text-sm font-medium">Event Date & Time</span>
+              <Input
+                type="datetime-local"
+                value={logEventDate}
+                onChange={(e) => setLogEventDate(e.target.value)}
+                required
+              />
+            </label>
+
+            <DialogFooter>
+              <div className="flex w-full justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowLogEventDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Save to Calendar</Button>
+              </div>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
