@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 
 const authRoutes = require("./routes/auth");
 const applicationsRoutes = require("./routes/applications");
+const resumesRoutes = require("./routes/resumes");
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationsRoutes);
+app.use("/api/resumes", resumesRoutes);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
