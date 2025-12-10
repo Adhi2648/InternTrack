@@ -16,6 +16,8 @@ import {
   Calendar as CalendarIcon,
   ChevronRight,
   Clock,
+  Download,
+  ExternalLink,
   Sparkles,
   Target,
   TrendingUp,
@@ -143,6 +145,63 @@ const CalendarPage = () => {
       setSelectedDate(date);
       setShowEventsDialog(true);
     }
+  };
+
+  // Generate Google Calendar URL for an event
+  const generateGoogleCalendarUrl = (event: CalendarEvent): string => {
+    const startDate = new Date(event.date);
+    // Default to 1 hour event
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+    // Format dates for Google Calendar (YYYYMMDDTHHMMSS)
+    const formatGoogleDate = (date: Date): string => {
+      return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    };
+
+    const title = encodeURIComponent(`${event.title} - ${event.company}`);
+    const details = encodeURIComponent(
+      `Role: ${event.role}\nCompany: ${event.company}\nStatus: ${event.status}\n\nManaged by InternTrack`
+    );
+    const dates = `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`;
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}`;
+  };
+
+  // Generate .ics file content for download
+  const generateIcsFile = (event: CalendarEvent): void => {
+    const startDate = new Date(event.date);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+
+    const formatIcsDate = (date: Date): string => {
+      return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    };
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//InternTrack//Calendar//EN
+BEGIN:VEVENT
+UID:${event.id}@interntrack
+DTSTAMP:${formatIcsDate(new Date())}
+DTSTART:${formatIcsDate(startDate)}
+DTEND:${formatIcsDate(endDate)}
+SUMMARY:${event.title} - ${event.company}
+DESCRIPTION:Role: ${event.role}\\nCompany: ${event.company}\\nStatus: ${
+      event.status
+    }
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], {
+      type: "text/calendar;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${event.company}-${event.title}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Get selected date events
@@ -342,8 +401,8 @@ const CalendarPage = () => {
                 head_row: "flex w-full",
                 head_cell: "flex-1 text-muted-foreground font-normal text-xs",
                 row: "flex w-full mt-1",
-                cell: "flex-1 text-center p-0 relative",
-                day: "h-10 w-full font-normal",
+                cell: "flex-1 text-center p-0 relative focus-within:relative focus-within:z-20",
+                day: "h-10 w-full font-normal focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                 day_selected: "bg-primary text-primary-foreground",
                 day_today: "bg-accent text-accent-foreground font-semibold",
               }}
@@ -551,6 +610,30 @@ const CalendarPage = () => {
                         })}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Calendar Export Buttons */}
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() =>
+                        window.open(generateGoogleCalendarUrl(event), "_blank")
+                      }
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Add to Google
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => generateIcsFile(event)}
+                    >
+                      <Download className="h-4 w-4" />
+                      Download .ics
+                    </Button>
                   </div>
                 </div>
               ))
