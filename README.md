@@ -204,10 +204,6 @@ InternTrack/
 
 > **Note:** Protected routes require `Authorization: Bearer <token>` header
 
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🙏 Acknowledgments
 
 - [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
@@ -215,4 +211,5 @@ This project is open source and available under the [MIT License](LICENSE).
 - [TailwindCSS](https://tailwindcss.com/) for the utility-first CSS framework
 
 ---
+
 
