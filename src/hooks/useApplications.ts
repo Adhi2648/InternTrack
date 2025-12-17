@@ -1,4 +1,5 @@
 import { useAuth } from "@/components/auth/AuthProvider";
+import { API_ENDPOINTS } from "@/config/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type ApplicationDto = {
@@ -11,8 +12,6 @@ export type ApplicationDto = {
   nextStep?: string;
   eventDate?: string; // Date for the next step/event
 };
-
-const API_BASE = "http://localhost:4001/api";
 
 export function useApplications() {
   const { authFetch, isAuthenticated, token, username } = useAuth();
@@ -28,7 +27,7 @@ export function useApplications() {
         "Fetching applications with token:",
         token?.slice(0, 20) + "..."
       );
-      const res = await authFetch(`${API_BASE}/applications`);
+      const res = await authFetch(API_ENDPOINTS.applications);
       console.log("Applications response:", res.status, res.statusText);
       if (!res.ok) {
         const text = await res.text();
@@ -62,7 +61,7 @@ export function useApplications() {
 
   const create = useMutation({
     mutationFn: async (payload: ApplicationDto) => {
-      const res = await authFetch(`${API_BASE}/applications`, {
+      const res = await authFetch(API_ENDPOINTS.applications, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -82,7 +81,7 @@ export function useApplications() {
       id: string;
       payload: Partial<ApplicationDto>;
     }) => {
-      const res = await authFetch(`${API_BASE}/applications/${id}`, {
+      const res = await authFetch(`${API_ENDPOINTS.applications}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -96,7 +95,7 @@ export function useApplications() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const res = await authFetch(`${API_BASE}/applications/${id}`, {
+      const res = await authFetch(`${API_ENDPOINTS.applications}/${id}`, {
         method: "DELETE",
       });
       if (!res.ok && res.status !== 204)

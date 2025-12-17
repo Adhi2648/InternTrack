@@ -1,7 +1,6 @@
 import { useAuth } from "@/components/auth/AuthProvider";
+import { API_ENDPOINTS } from "@/config/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-const API_URL = "http://localhost:4001/api/resumes";
 
 export interface Resume {
   _id: string;
@@ -42,7 +41,7 @@ export default function useResumes() {
   const query = useQuery<Resume[]>({
     queryKey: ["resumes"],
     queryFn: async () => {
-      const res = await authFetch(API_URL);
+      const res = await authFetch(API_ENDPOINTS.resumes);
       if (!res.ok) throw new Error("Failed to fetch resumes");
       return res.json();
     },
@@ -50,7 +49,7 @@ export default function useResumes() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateResumeData) => {
-      const res = await authFetch(API_URL, {
+      const res = await authFetch(API_ENDPOINTS.resumes, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -65,7 +64,7 @@ export default function useResumes() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ _id, ...data }: UpdateResumeData) => {
-      const res = await authFetch(`${API_URL}/${_id}`, {
+      const res = await authFetch(`${API_ENDPOINTS.resumes}/${_id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -80,7 +79,7 @@ export default function useResumes() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await authFetch(`${API_URL}/${id}`, {
+      const res = await authFetch(`${API_ENDPOINTS.resumes}/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete resume");

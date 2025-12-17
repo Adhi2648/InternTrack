@@ -1,4 +1,5 @@
 import { useTheme } from "@/components/ThemeProvider";
+import { API_ENDPOINTS } from "@/config/api";
 import { Moon, Sun } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,7 @@ const Signup: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:4001/api/auth/register", {
+      const response = await fetch(API_ENDPOINTS.auth.register, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

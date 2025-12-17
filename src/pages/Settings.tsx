@@ -1,5 +1,6 @@
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTheme } from "@/components/ThemeProvider";
+import { API_ENDPOINTS } from "@/config/api";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -111,7 +112,7 @@ const Settings = () => {
   const handleExportData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:4001/api/applications", {
+      const response = await fetch(API_ENDPOINTS.applications, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const applications = await response.json();
@@ -151,14 +152,14 @@ const Settings = () => {
   const handleDeleteAllData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:4001/api/applications", {
+      const response = await fetch(API_ENDPOINTS.applications, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const applications = await response.json();
 
       // Delete all applications
       for (const app of applications) {
-        await fetch(`http://localhost:4001/api/applications/${app._id}`, {
+        await fetch(`${API_ENDPOINTS.applications}/${app._id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         });
